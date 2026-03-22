@@ -200,7 +200,7 @@ public class TestListQueue {
         assertEquals("4 6 10 1 3 5 7 9 11 2 8 12", queue.toString());
         int[] yahudiler = new int[]{0, 1};
         queue.thisMustChange(yahudiler);
-        assertEquals("ben 1 3 5 7 9 11 2 8 12 4 6", queue.toString());
+        assertEquals("10 1 3 5 7 9 11 2 8 12 4 6", queue.toString());
     }
 
     @Test
