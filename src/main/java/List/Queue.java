@@ -10,7 +10,7 @@ public class Queue {
         last = null;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return first == null;
     }
 
@@ -23,30 +23,30 @@ public class Queue {
         last = newNode;
     }
 
-    public Node dequeue(){
+    public Node dequeue() {
         Node result = first;
-        if (!isEmpty()){
+        if (!isEmpty()) {
             first = first.getNext();
-            if (isEmpty()){
+            if (isEmpty()) {
                 last = null;
             }
         }
         return result;
     }
 
-    public void insertArray(int[] data){
-        for (int datum : data){
+    public void insertArray(int[] data) {
+        for (int datum : data) {
             enqueue(new Node(datum));
         }
     }
 
-    public String toString(){
-        if (isEmpty()){
+    public String toString() {
+        if (isEmpty()) {
             return "";
         }
         String s = "" + first.getData();
         Node tmp = first.getNext();
-        while (tmp != null){
+        while (tmp != null) {
             s += " " + tmp.getData();
             tmp = tmp.getNext();
         }
@@ -58,7 +58,24 @@ public class Queue {
      * of queues in order. The elements from queues should be recreated (not copied from the queues). You are not
      * allowed to use enqueue, dequeue, isEmpty functions.
      */
-    public Queue(Queue[] list){
+    public Queue(Queue[] list) {
+        first = null;
+        last = null;
+
+        for (Queue q : list) {
+            Node tmp = q.first;
+            while (tmp != null) {
+                Node new_node = new Node(tmp.getData());
+                if (this.first == null) {
+                    this.first = new_node;
+                } else {
+                    this.last.setNext(new_node);
+                }
+                this.last = new_node;
+
+                tmp = tmp.getNext();
+            }
+        }
     }
 
     /**
@@ -66,8 +83,32 @@ public class Queue {
      * dequeue, that is, the first element has index 1. You are not allowed to use any queue methods and any external
      * structures (arrays, queues, trees, etc). You are allowed to use attributes, constructors, getters and setters.
      */
-    public Node dequeue(int k){
-        return null;
+    public Node dequeue(int k) {
+        int index = 1;
+        Node prev = null;
+        Node tmp = this.first;
+
+        while (index < k) {
+            prev = tmp;
+            tmp = tmp.getNext();
+            index++;
+        }
+
+        Node dequeued = tmp;
+
+        if (prev == null) {
+            this.first = this.first.getNext();
+            if (this.first == null) {
+                this.last = null;
+            }
+        } else if (tmp.getNext() == null) {
+            prev.setNext(null);
+            this.last = prev;
+        } else {
+            prev.setNext(tmp.getNext());
+        }
+
+        return dequeued;
     }
 
     /**
@@ -75,8 +116,39 @@ public class Queue {
      * and inserting into the newly created queue. The first node has index 1. You are not allowed to use any queue or
      * linked list methods, just attributes, constructors, getters and setters.
      */
-    public Queue divideQueue(){
-        return null;
+    public Queue divideQueue() {
+        Queue even_indexed = new Queue();
+        int index = 1;
+        Node prev = null;
+        Node tmp = this.first;
+
+        while (tmp != null) {
+            if (index % 2 == 0) {
+                Node next = tmp.getNext();
+                tmp.setNext(null);
+
+                if (even_indexed.first == null) {
+                    even_indexed.first = tmp;
+                } else {
+                    even_indexed.last.setNext(tmp);
+                }
+                even_indexed.last = tmp;
+
+                prev.setNext(next);
+
+                if (prev.getNext() == null) {
+                    this.last = prev;
+                }
+
+                tmp = prev.getNext();
+            } else {
+                prev = tmp;
+                tmp = tmp.getNext();
+            }
+            index++;
+        }
+
+        return even_indexed;
     }
 
     /**
@@ -85,30 +157,109 @@ public class Queue {
      * $\ldots$, $k$'th output queues, etc. The elements of the output queues should be recreated (not copied from the
      * original queue). You are not allowed to use enqueue, dequeue, isEmpty functions.
      */
-    public Queue[] divideQueue(int k){
-        return null;
+    public Queue[] divideQueue(int k) {
+        Queue[] queue_list = new Queue[k];
+
+        for (int i = 0; i < k; i++) {
+            queue_list[i] = new Queue();
+        }
+
+        Node tmp = this.first;
+        int index = 1;
+
+        while (tmp != null) {
+            int list_index = (((index % k) - 1 + k) % k);
+            Node new_node = new Node(tmp.getData());
+
+            Queue curr_queue = queue_list[list_index];
+
+            if (curr_queue.first == null) {
+                curr_queue.first = new_node;
+            } else {
+                curr_queue.last.setNext(new_node);
+            }
+            curr_queue.last = new_node;
+
+            tmp = tmp.getNext();
+            index++;
+        }
+
+        return queue_list;
     }
 
     /**
      * Write a method where the method returns the minimum number in a queue. Do not use any class or external methods
      * except isEmpty().
      */
-    public int minimum(){
-        return 0;
+    public int minimum() {
+        Node tmp = this.first;
+        int min = this.first.getData();
+
+        while (tmp != null) {
+            int curr = tmp.getData();
+            if (curr < min) {
+                min = curr;
+            }
+            tmp = tmp.getNext();
+        }
+        return min;
     }
 
     /**
      * Write a method that returns the maximum number in a queue.
      */
-    public int maximum(){
-        return 0;
+    public int maximum() {
+        Node tmp = this.first;
+        int max = this.first.getData();
+
+        while (tmp != null) {
+            int curr = tmp.getData();
+            if (curr > max) {
+                max = curr;
+            }
+            tmp = tmp.getNext();
+        }
+        return max;
     }
 
     /**
      * Write a method which removes all elements in the queues in the $list$ from the original queue. You are not
      * allowed to use enqueue, dequeue, isEmpty functions.
      */
-    public void removeAll(Queue[] list){
+    public void removeAll(Queue[] list) {
+        for (Queue q : list) {
+            Node tmp2 = q.first;
+
+            while (tmp2 != null) {
+                Node prev = null;
+                Node tmp = this.first;
+
+                while (tmp != null) {
+                    if (tmp2.getData() == tmp.getData()) {
+                        Node next = tmp.getNext();
+
+                        if (prev != null) {
+                            prev.setNext(next);
+                        } else {
+                            this.first = next;
+                        }
+
+                        if (next == null) {
+                            this.last = prev;
+                        }
+
+                        if (this.first == null) {
+                            this.last = null;
+                        }
+
+                        break;
+                    }
+                    prev = tmp;
+                    tmp = tmp.getNext();
+                }
+                tmp2 = tmp2.getNext();
+            }
+        }
     }
 
     /**
@@ -116,7 +267,29 @@ public class Queue {
      * elements in the queue without using the queue’s enqueue(), dequeue(), or peek() methods. You must directly
      * manipulate the underlying linked list of the queue to achieve the reversal.
      */
-    public void reverseQueue(){
+    public void reverseQueue() {
+        Node head = this.first;
+        Node tail = this.last;
+
+        Node prev = null;
+        Node tmp = this.first;
+        Node next = tmp.getNext();
+
+        while (tmp != null) {
+            tmp.setNext(prev);
+
+            prev = tmp;
+            tmp = next;
+
+            if (tmp != null) {
+                next = tmp.getNext();
+            }
+        }
+
+        this.first = tail;
+        this.last = head;
+
+
     }
 
     /**
@@ -125,14 +298,74 @@ public class Queue {
      * the officer in the queue. The method will send these people to the end of the queue in their respective order.
      * The first element in the queue has the index 0.
      */
-    public void thisMustChange(int[] indexOfNonbribers){
+    public void thisMustChange(int[] indexOfNonbribers) {
+        Queue nonbribers = new Queue();
+        Node tmp = this.first;
+        Node prev = null;
+        int i = 0;
+
+        for (int index : indexOfNonbribers) {
+
+            while (tmp != null) {
+                if (i == index) {
+
+                    Node next = tmp.getNext();
+                    if (prev != null) {
+                        prev.setNext(next);
+                    } else {
+                        this.first = next;
+                    }
+
+                    if (this.first == null) {
+                        this.last = null;
+                    }
+
+                    if (next == null) {
+                        this.last = prev;
+                    }
+
+                    tmp.setNext(null);
+                    nonbribers.enqueue(tmp);
+                    tmp = next;
+                    i++;
+                    break;
+
+                } else {
+                    prev = tmp;
+                    tmp = tmp.getNext();
+                    i++;
+                }
+            }
+        }
+
+        tmp = nonbribers.first;
+
+        while (tmp != null) {
+            Node next = tmp.getNext();
+            this.enqueue(tmp);
+            tmp = next;
+        }
+
     }
 
     /**
      * Write a method that returns the second maximum number in a queue. Write the method for the
      * linked list implementation.
      */
-    public int secondMaximum(){
-        return 0;
+    public int secondMaximum() {
+        int max = Integer.MIN_VALUE;
+        int secondMax = Integer.MIN_VALUE;
+        Node tmp = this.first;
+
+        while (tmp != null) {
+            if (tmp.getData() >= max) {
+                secondMax = max;
+                max = tmp.getData();
+            } else if (tmp.getData() > secondMax) {
+                secondMax = tmp.getData();
+            }
+            tmp = tmp.getNext();
+        }
+        return secondMax;
     }
 }
