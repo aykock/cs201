@@ -1,6 +1,10 @@
 package Tree;
 
+import Array.Element;
+import Array.Queue;
 import List.LinkedList;
+
+import java.sql.Array;
 
 public class TreeNode {
 
@@ -52,7 +56,18 @@ public class TreeNode {
      * nodes in queue. For queue, you are only allowed to use enqueue function. You should use array  implementation
      * for the queue in this question.
      */
-    public void accumulateLeafNodes(Array.Queue queue){
+    public void accumulateLeafNodes(Queue queue){
+
+        if(this.getLeft() != null){
+            this.getLeft().accumulateLeafNodes(queue);
+        }
+        if(this.getRight() != null){
+            this.getRight().accumulateLeafNodes(queue);
+        }
+        if(this.getRight() == null && this.getLeft() == null){
+            queue.enqueue(new Element(this.getData()));
+        }
+
     }
 
     /**
@@ -60,6 +75,20 @@ public class TreeNode {
      * (left and right children must exist).
      */
     public boolean averageOfItsChildren(){
+
+        if(this.getRight() != null && this.getLeft() != null){
+            if(2 * this.getData() == (this.getLeft().getData() + this.getRight().getData())){
+                return true;
+            }
+            return this.getLeft().averageOfItsChildren() || this.getRight().averageOfItsChildren();
+        }
+
+        if(this.getLeft() != null){
+            return this.getLeft().averageOfItsChildren();
+        }
+        if(this.getRight() != null){
+            return this.getRight().averageOfItsChildren();
+        }
         return false;
     }
 
@@ -68,6 +97,21 @@ public class TreeNode {
      * following property: The node's key is the average of its children (left and right children).
      */
     public int averages(){
+
+        if(this.left != null && this.right != null){
+            if(2 * this.getData() == (this.left.getData() + this.right.getData())){
+                return this.left.averages() + this.right.averages() + 1;
+            }
+            return this.left.averages() + this.right.averages();
+        }
+
+        if(this.left != null){
+            return this.left.averages();
+        }
+
+        if(this.right != null){
+            return this.right.averages();
+        }
         return 0;
     }
 
@@ -76,7 +120,26 @@ public class TreeNode {
      * manner. You are not allowed to use any tree methods.
      */
     public int[] collectNodes(){
-        return null;
+        int[] leftArr = new int[0];
+        int[] rightArr = new int[0];
+        if(this.left != null){
+            leftArr = this.getLeft().collectNodes();
+        }
+
+        if(this.right != null){
+            rightArr = this.getRight().collectNodes();
+        }
+
+        int[] result = new int[leftArr.length + rightArr.length + 1];
+
+        for(int i = 0; i < leftArr.length; i++){
+            result[i] = leftArr[i];
+        }
+        result[leftArr.length] = this.data;
+        for(int i = 0; i < rightArr.length; i++){
+            result[i + leftArr.length + 1] = rightArr[i];
+        }
+        return result;
     }
 
     /**
@@ -86,6 +149,31 @@ public class TreeNode {
      * create an extra array to forward reduced path to the children.
      */
     public boolean hasPath(int[] path){
+
+        if(path[0] != this.data){
+            return false;
+        }
+
+        if(path.length == 1){
+            return true;
+        }
+
+        int[] reduced_path = new int[path.length - 1];
+
+        for(int i = 0; i < reduced_path.length ; i++){
+            reduced_path[i] = path[i+1];
+        }
+
+        if(reduced_path[0] < this.data){
+            if(this.left != null){
+                return this.left.hasPath(reduced_path);
+            }
+        }
+        else{
+            if(this.right != null){
+                return this.right.hasPath(reduced_path);
+            }
+        }
         return false;
     }
 
@@ -95,7 +183,27 @@ public class TreeNode {
      * the number of nodes which have value larger than $X$ in the tree. Do not use any class or external methods.
      */
     public int higherThanX(int X){
-        return 0;
+        int count;
+
+        if(this.data > X){
+            count = 1;
+            if(this.left != null){
+                count += this.left.higherThanX(X);
+            }
+            if(this.right != null){
+                count += this.right.higherThanX(X);
+            }
+        }
+        else{
+            count = 0;
+            if(this.right != null){
+                count += this.right.higherThanX(X);
+            }
+        }
+
+        return count;
+
+
     }
 
     /**
@@ -103,7 +211,14 @@ public class TreeNode {
      * binary tree is a mirror of itself (symmetric). You may not use any additional data structure or array.
      */
     public boolean isMirror(TreeNode left, TreeNode right){
-        return false;
+
+        if(left == null && right == null){
+            return true;
+        }
+        if(left == null || right == null){
+            return false;
+        }
+        return (left.data == right.data) && (isMirror(left.left, right.right)) && (isMirror(left.right, right.left));
     }
 
     /**
@@ -115,6 +230,24 @@ public class TreeNode {
      * </ul>
      */
     public int leftist(){
+
+        if(this.left != null && this.right != null){
+            if(this.left.data > this.right.data){
+                return (this.left.leftist() + this.right.leftist() + 1);
+            }
+            else{
+                return (this.left.leftist() + this.right.leftist());
+            }
+        }
+        if(this.left == null && this.right == null){
+            return 0;
+        }
+        if(this.left == null){
+            return this.right.leftist();
+        }
+        if(this.right == null){
+            return this.left.leftist() + 1;
+        }
         return 0;
     }
 
@@ -125,7 +258,49 @@ public class TreeNode {
      * method should concatenate them)
      */
     public int[] lessThanX(int x){
-        return null;
+        int[] leftArr = new int[0];
+        int[] rightArr = new int[0];
+
+
+        if(this.left != null){
+            if(this.left.data < x){
+                leftArr = this.left.lessThanX(x);
+            }
+        }
+        if(this.right != null){
+            if(this.right.data < x){
+                rightArr = this.right.lessThanX(x);
+            }
+        }
+        int[] NodesArray;
+        boolean isRoot = this.data < x;
+
+        if(isRoot){
+            NodesArray = new int[leftArr.length + rightArr.length + 1];
+        }
+        else{
+            NodesArray = new int[leftArr.length + rightArr.length];
+        }
+
+        for(int i = 0; i < leftArr.length; i++){
+            NodesArray[i] = leftArr[i];
+        }
+
+        if(isRoot){
+            NodesArray[leftArr.length] = this.data;
+
+            for(int i = 0; i < rightArr.length; i++){
+                NodesArray[i+leftArr.length+1] = rightArr[i];
+            }
+        }
+        else{
+            for(int i = 0; i < rightArr.length; i++){
+                NodesArray[i+leftArr.length] = rightArr[i];
+            }
+
+        }
+
+        return NodesArray;
     }
 
     /**
