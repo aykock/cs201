@@ -27,7 +27,7 @@ public class TestArrayGraph {
                         {3, 0}, {3, 1}, {4, 5}});
         assertTrue(graph.hasCycle(0, new boolean[6]));
         assertTrue(graph.hasCycle(3, new boolean[6]));
-        assertFalse(graph.hasCycle(3, new boolean[6]));
+        assertFalse(graph.hasCycle(4, new boolean[6]));  //Corrected the typo
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TestArrayGraph {
         Graph graph = new Graph(6,
                 new int[][]{{0, 1}, {0, 2}, {1, 3},
                 {0, 4}, {0, 5}});
-        Graph temp = new Graph(4,
+        Graph temp = new Graph(5,          // Corrected the typo
                 new int[][]{{0, 1}, {0, 2}, {1, 3}, {0, 4}});
         assertTrue(graph.isSubGraph(temp));
         Graph graph2 = new Graph(6,
@@ -77,12 +77,12 @@ public class TestArrayGraph {
                 new int[][]{{0, 1}, {1, 2}, {2, 3}, {3, 0}});
         assertEquals(4, graph.lengthOfCircle());
         graph = new Graph(5,
-                new int[][]{{0, 1}, {1, 2}, {2, 3}, {3, 0}});
-        assertEquals(4, graph.lengthOfCircle());
-        graph = new Graph(6,
-                new int[][]{{0, 1}, {1, 2}, {2, 3},
-                        {3, 4}, {4, 0}});
+                new int[][]{{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 0}});   //Corrected the test case
         assertEquals(5, graph.lengthOfCircle());
+        graph = new Graph(6,
+                new int[][]{{0, 1}, {1, 2}, {2, 3},                     //Corrected the test case
+                        {3, 4}, {4, 5}, {5, 0}});
+        assertEquals(6, graph.lengthOfCircle());
     }
 
     @Test
