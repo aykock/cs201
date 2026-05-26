@@ -89,6 +89,27 @@ public class Graph extends AbstractGraph {
      * all graphs have the same size, and the intersections of the graphs are empty.
      */
     public Graph(Graph[] graphs){
+        int graphSize = graphs[0].vertexCount;
+        this.vertexCount = graphSize;
+        edges = new EdgeList[graphSize];
+
+        for (int i = 0; i < vertexCount; i++){
+            edges[i] = new EdgeList();
+        }
+
+        for(int i = 0; i < graphSize; i++){
+            for(int j = 0; j < graphs.length; j++){
+                EdgeList currEdgeList = graphs[j].edges[i];
+                Edge tmp = currEdgeList.getHead();
+                while(tmp != null){
+                    if(edges[i].search(tmp.getTo()) == null){
+                        Edge newEdge = new Edge(tmp.getFrom(), tmp.getTo(), tmp.getWeight());
+                        edges[i].insert(newEdge);
+                    }
+                    tmp = tmp.getNext();
+                }
+            }
+        }
     }
 
     /**
@@ -96,7 +117,29 @@ public class Graph extends AbstractGraph {
      * list representation.
      */
     public int bidirectionalEdges(){
-        return 0;
+        int count = 0;
+
+        for(int i = 0; i < vertexCount ; i++){
+            EdgeList currEdgeList = this.edges[i];
+            Edge tmp = currEdgeList.getHead();
+
+            while(tmp != null){
+                EdgeList bidirectional = this.edges[tmp.getTo()];
+                Edge bi_tmp = bidirectional.getHead();
+
+                while(bi_tmp != null){
+                    if(bi_tmp.getTo() == tmp.getFrom()){
+                        count++;
+                    }
+                    bi_tmp = bi_tmp.getNext();
+                }
+
+                tmp = tmp.getNext();
+
+            }
+        }
+
+        return count/2;
     }
 
     /**
@@ -104,6 +147,28 @@ public class Graph extends AbstractGraph {
      * from the node index1 to index2.
      */
     public boolean breadthFirstSearch(boolean[] visit, int index1, int index2){
+        Queue queue = new Queue();
+        queue.enqueue(new Node(index1));
+        visit[index1] = true;
+
+
+        while(!queue.isEmpty()) {
+            int currIndex = queue.dequeue().getData();
+            EdgeList currEdgeList = this.edges[currIndex];
+            Edge tmp = currEdgeList.getHead();
+
+            while (tmp != null) {
+                if(tmp.getTo() == index2){
+                    return true;
+                }
+                if(!visit[tmp.getTo()]){
+                    visit[tmp.getTo()] = true;
+                    queue.enqueue(new Node(tmp.getTo()));
+                }
+                tmp = tmp.getNext();
+            }
+        }
+
         return false;
     }
 
@@ -113,7 +178,18 @@ public class Graph extends AbstractGraph {
      * other than 1.
      */
     public Graph constructGraphFromNumbers(int N){
-        return null;
+        Graph graph = new Graph(N);
+
+        for(int i = 2; i < N; i++){
+            for(int j = 2; j < N; j++){
+                if((i != j) && (i % j == 0 || j % i == 0)){
+                    graph.addEdge(i,j);
+                }
+            }
+        }
+
+
+        return graph;
     }
 
     /**
@@ -121,7 +197,29 @@ public class Graph extends AbstractGraph {
      * edges which exist both in the original graph and g2. You may assume both graphs are unweighted.
      */
     public Graph intersection(Graph g2, int v){
-        return null;
+        Graph intersection = new Graph(this.vertexCount);
+
+        for(int i = 0; i < this.vertexCount; i++){
+            EdgeList currEdgeList = this.edges[i];
+            Edge tmp = currEdgeList.getHead();
+
+            while(tmp != null){
+                EdgeList g2EdgeList = g2.edges[i];
+                Edge g2_tmp = g2EdgeList.getHead();
+
+                while(g2_tmp != null){
+                    if(tmp.getTo() == g2_tmp.getTo()){
+                        intersection.addEdge(i,tmp.getTo(),1);
+                    }
+
+                    g2_tmp = g2_tmp.getNext();
+                }
+
+                tmp = tmp.getNext();
+            }
+        }
+
+        return intersection;
     }
 
     /**
@@ -130,7 +228,29 @@ public class Graph extends AbstractGraph {
      * in the original graph. You are not allowed to use extra data structures apart from the constructed graph.
      */
     public Graph inverseGraph(){
-        return null;
+        Graph inverse = new Graph(this.vertexCount);
+
+        for(int i = 0; i < this.vertexCount; i++){
+            for(int j = 0; j < this.vertexCount; j++){
+                EdgeList currEdgeList = this.edges[i];
+                Edge tmp = currEdgeList.getHead();
+                boolean isAdjacent = false;
+
+                while(tmp != null){
+                    if(tmp.getTo() == j){
+                        isAdjacent = true;
+                        break;
+                    }
+                    tmp = tmp.getNext();
+                }
+
+                if(!isAdjacent){
+                    inverse.addEdge(i,j,1);
+                }
+            }
+        }
+
+        return inverse;
     }
 
     /**
@@ -139,7 +259,43 @@ public class Graph extends AbstractGraph {
      * if the corresponding graph is bipartite or not. Hint: Use Depth or breath first search to traverse the graph.
      */
     public boolean isBipartite(){
-        return false;
+        Queue queue = new Queue();
+
+        boolean[] receiver = new boolean[this.vertexCount];
+        boolean[] sender = new boolean[this.vertexCount];
+
+        for(int start = 0; start < this.vertexCount; start++){
+            boolean[] visited = new boolean[this.vertexCount];
+            queue.enqueue(new Node(start));
+            visited[start] = true;
+
+            while(!queue.isEmpty()){
+                int curr_index = queue.dequeue().getData();
+                EdgeList curr = this.edges[curr_index];
+                Edge tmp = curr.getHead();
+
+                if(tmp != null){
+                    sender[curr_index] = true;
+                }
+
+                while(tmp != null){
+                    if(!visited[tmp.getTo()]){
+                        queue.enqueue(new Node(tmp.getTo()));
+                        visited[tmp.getTo()] = true;
+                        receiver[tmp.getTo()] = true;
+                    }
+                    tmp = tmp.getNext();
+                }
+            }
+        }
+
+
+        for(int i = 0; i < this.vertexCount; i++){
+            if(sender[i] && receiver[i]){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

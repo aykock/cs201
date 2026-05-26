@@ -87,7 +87,38 @@ public class Graph extends AbstractGraph {
      * city, and use one array to store the number of nearby cities for every city.
      */
     public int capitalCity(){
-        return 0;
+        int[] nearbyCities = new int[this.vertexCount];
+
+        for(int i = 0; i < vertexCount; i++){
+            int min = Integer.MAX_VALUE;
+            for(int j = 0; j < vertexCount; j++){
+                int currWeight = edges[i][j];
+                if(i != j && currWeight < min){
+                    min = currWeight;
+                }
+            }
+
+            for(int t = 0; t < vertexCount; t++){
+                int currWeight = edges[i][t];
+                if(i != t && currWeight == min){
+                    nearbyCities[i]++;
+                }
+            }
+        }
+
+        int capitalIndex = 0;
+        int maxNearby = nearbyCities[0];
+
+        for(int i = 0; i < vertexCount; i++){
+            int curr = nearbyCities[i];
+            if(curr > maxNearby){
+                maxNearby = nearbyCities[i];
+                capitalIndex = i;
+            }
+        }
+
+
+        return capitalIndex;
     }
 
     /**
@@ -96,7 +127,17 @@ public class Graph extends AbstractGraph {
      * Search (DFS). Your method should return true if there is at least one cycle in the graph, and false otherwise.
      */
     public boolean hasCycle(int v, boolean[] visited){
-        return false;
+
+        for(int i = 0; i < this.vertexCount; i++){
+            if(edges[v][i] != 0){
+                if(!visited[i]){
+                    visited[i] = true;
+                    hasCycle(i,visited);
+                }
+            }
+        }
+
+        return visited[v];
     }
 
     /**
@@ -105,7 +146,29 @@ public class Graph extends AbstractGraph {
      * $V_1$ is connected to every vertex of $V_2$.
      */
     public boolean isCompleteBipartite(){
-        return false;
+        boolean[] isV1 = new boolean[vertexCount];
+
+        for(int i = 0; i < vertexCount; i++){
+            for(int j = 0; j < vertexCount; j++){
+                if(edges[i][j] != 0){
+                    isV1[i] = true;
+                }
+            }
+        }
+
+        for(int i = 0; i < vertexCount; i++){
+            if(isV1[i]){
+                for(int j = 0; j < vertexCount; j++){
+                    if(isV1[j] && edges[i][j] != 0){
+                        return false;
+                    }
+                    if(!isV1[j] && edges[i][j] == 0){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -115,7 +178,22 @@ public class Graph extends AbstractGraph {
      * first search.
      */
     public boolean isStarGraph(){
-        return false;
+
+        for(int i = 0; i < vertexCount; i++){
+            int edgeCount = 0;
+
+            for(int j = 0; j < vertexCount; j++){
+                if(edges[i][j] != 0){
+                    edgeCount++;
+                }
+            }
+
+            if(edgeCount != 0 && edgeCount != vertexCount -1){
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -124,7 +202,17 @@ public class Graph extends AbstractGraph {
      * $G_2$.
      */
     public boolean isSubGraph(Graph g){
-        return false;
+
+        for(int i = 0; i < g.vertexCount; i++){
+            for(int j = 0; j < g.vertexCount; j++){
+                if(g.edges[i][j] != 0){
+                    if(this.edges[i][j] == 0){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -133,7 +221,23 @@ public class Graph extends AbstractGraph {
      * Each node is connected to two others, like points on a circle.
      */
     public int lengthOfCircle(){
-        return 0;
+
+        int length = 0;
+        int edges = 0;
+        int prev = 0;
+
+        while(edges < vertexCount){
+            for(int i = 0; i < vertexCount; i++){
+                if(this.edges[prev][i] != 0){
+                    length += this.edges[prev][i];
+                    prev = i;
+                    edges++;
+                    break;
+                }
+            }
+        }
+
+        return length;
     }
 
     /**
@@ -144,7 +248,30 @@ public class Graph extends AbstractGraph {
      * (1, 2, 5), (3, 6) and (4, 7) are complete subgraphs.
      */
     public int numberOfCompleteSubGraphs(){
-        return 0;
+        boolean[] visited = new boolean[this.vertexCount];
+        int number = 0;
+
+        for(int i = 0; i < this.vertexCount; i++){
+            if(!visited[i]){
+                visited[i] = true;
+                boolean hasEdge = false;
+
+                for(int j = 0; j < this.vertexCount; j++){
+                    if(edges[i][j] != 0){
+                        visited[j] = true;
+                        hasEdge = true;
+                    }
+                }
+
+                if(hasEdge){
+                    number++;
+                }
+            }
+        }
+
+
+
+        return number;
     }
 
     /**
@@ -154,6 +281,7 @@ public class Graph extends AbstractGraph {
      * time.
      */
     public int[][] numberOfWaysInTwoMoves(){
+
         return null;
     }
 
