@@ -1,5 +1,8 @@
 package Array.Heap;
 
+import List.LinkedList;
+import List.Node;
+
 public class MaxHeap extends Heap{
 
     public MaxHeap(int N) {
@@ -50,7 +53,33 @@ public class MaxHeap extends Heap{
      * only that many items not more not less.
      */
     public int[] ascendants(int index){
-        return null;
+
+        if(index == 0){
+            return new int[0];
+        }
+
+        int size = 0;
+
+        int curr = index;
+
+        while(curr > 0){
+            curr = (curr - 1) / 2;
+            size++;
+        }
+
+        int[] ascendants = new int[size];
+        int pos = size - 1;
+
+        curr = index;
+
+        while(curr > 0){
+            curr = (curr - 1) / 2;
+
+            ascendants[pos] = curr;
+            pos--;
+        }
+
+        return ascendants;
     }
 
     /**
@@ -58,7 +87,25 @@ public class MaxHeap extends Heap{
      * with index satisfies the heap-order property. Do not use any class or external methods.
      */
     public boolean heapOrder(int index){
-        return false;
+        int left = 2 * index + 1;
+        int right = 2 * index + 2;
+
+        if(left >= count){
+            return true;
+        }
+
+        if(right < count){
+            if((array[index].getData() < array[left].getData()) || (array[index].getData() < array[right].getData())){
+                return false;
+            }
+            return heapOrder(left) && heapOrder(right);
+        }
+        else{
+            if(array[index].getData() < array[left].getData()){
+                return false;
+            }
+            return heapOrder(left);
+        }
     }
 
     /**
@@ -67,7 +114,56 @@ public class MaxHeap extends Heap{
      * tree depth is smaller than 100). Compare those lists to solve the problem.
      */
     public int shortestDistanceBetWeenNodes(int index1, int index2){
-        return 0;
+        LinkedList list1 = new LinkedList();
+        LinkedList list2 = new LinkedList();
+
+        int curr = index1;
+
+        while(curr > 0){
+            curr = (curr - 1) / 2;
+            Node new_node = new Node(curr);
+            list1.insertFirst(new_node);
+        }
+        list1.insertLast(new Node(index1));
+
+        curr = index2;
+
+        while(curr > 0){
+            curr = (curr - 1) / 2;
+            Node new_node = new Node(curr);
+            list2.insertFirst(new_node);
+        }
+        list2.insertLast(new Node(index2));
+
+        Node tmp1 = list1.getHead();
+        Node tmp2 = list2.getHead();
+
+        int lca_depth = 0;
+
+        while(tmp1 != null && tmp2 != null && tmp1.getData() == tmp2.getData()){
+            lca_depth++;
+
+            tmp1 = tmp1.getNext();
+            tmp2 = tmp2.getNext();
+        }
+
+        tmp1 = list1.getHead();
+        int depth1 = 0;
+
+        while(tmp1 != null){
+            depth1++;
+            tmp1 = tmp1.getNext();
+        }
+
+        tmp2 = list2.getHead();
+        int depth2 = 0;
+
+        while(tmp2 != null){
+            depth2++;
+            tmp2 = tmp2.getNext();
+        }
+
+        return (depth1 - lca_depth) + (depth2 - lca_depth);
     }
 
     /**

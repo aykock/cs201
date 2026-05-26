@@ -65,7 +65,19 @@ public class MinHeap extends Heap{
      * a min-heap to store $K$ largest elements at a time, in that case the removeMin will return the $k$'th maximum).
      */
     public static int kthMaximum(int[] array, int k){
-        return 0;
+        MinHeap minHeap = new MinHeap(array.length);
+
+        for (int j : array) {
+            if (minHeap.count < k) {
+                minHeap.insert(new HeapNode(j, j));
+            } else {
+                if (j > minHeap.array[0].getData()) {
+                    minHeap.delete();
+                    minHeap.insert(new HeapNode(j, j));
+                }
+            }
+        }
+        return minHeap.delete().getData();
     }
 
     /**
