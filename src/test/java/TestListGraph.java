@@ -21,7 +21,7 @@ public class TestListGraph {
         assertEquals("0 1 1\n0 2 1\n1 0 1\n1 1 1\n1 2 1\n2 0 1\n", result.toString());
         graph = new Graph(10,
                 new int[][]{{0, 1}, {0, 2}, {1, 0}, {2, 0}});
-        graph2 = new Graph(10,
+        graph2 = new Graph(7,
                 new int[][]{{0, 1}, {0, 2}, {1, 0}, {2, 0}});
         Graph[] graphs2 = new Graph[2];
         graphs2[0] = graph;
@@ -36,7 +36,7 @@ public class TestListGraph {
                 new int[][]{{0, 1}, {1, 0}, {2, 0},
                         {0, 2}, {0, 3}});
         assertEquals(2, graph.bidirectionalEdges());
-        graph = new Graph(4,
+        graph = new Graph(5,                        //Corrected test case bug
                 new int[][]{{0, 1}, {1, 0}, {2, 0},
                         {0, 2}, {0, 3}, {3, 4},
                         {3, 0}});
