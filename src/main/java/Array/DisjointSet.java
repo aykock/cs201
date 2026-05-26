@@ -1,6 +1,7 @@
 package Array;
 
 import List.LinkedList;
+import List.Node;
 
 public class DisjointSet {
     private Set[] sets;
@@ -67,7 +68,25 @@ public class DisjointSet {
      * current) of that set as an array. You are not allowed to use any class method except getParent.
      */
     public int[] ascendants1(int current){
-        return null;
+        int parent = sets[current].getParent();
+
+        if(parent == current){
+            int[] root = new int[1];
+            root[0] = parent;
+            return root;
+        }
+
+        int[] ascendants = ascendants1(parent);
+
+        int[] fullAscendants = new int[ascendants.length + 1];
+
+        fullAscendants[0] = current;
+
+        for(int i = 0; i < ascendants.length; i++){
+            fullAscendants[i+1] = ascendants[i];
+        }
+
+        return fullAscendants;
     }
 
     /**
@@ -75,7 +94,26 @@ public class DisjointSet {
      * etc.). The size of the returning array should be as much as needed.
      */
     public int[] ascendants2(int index){
-        return null;
+        int depth = 1;
+
+        int curr = index;
+
+        while(curr != this.sets[curr].getParent()){
+            curr = this.sets[curr].getParent();
+            depth++;
+        }
+
+        int[] ascendants = new int[depth];
+
+        curr = index;
+
+        for(int i = 0; i < ascendants.length; i++) {
+            ascendants[i] = curr;
+            curr = this.sets[curr].getParent();
+        }
+
+
+        return ascendants;
     }
 
     /**
@@ -95,7 +133,13 @@ public class DisjointSet {
      * of variables, left and right represent the left and right parts of the equalities.
      */
     public static int combine(int N, int[] left, int[] right){
-        return 0;
+        DisjointSet disjointSet = new DisjointSet(N);
+
+        for(int i = 0; i < left.length; i++){
+            disjointSet.union(left[i], right[i]);
+        }
+
+        return disjointSet.setCount();
     }
 
     /**
@@ -103,7 +147,34 @@ public class DisjointSet {
      * the array list.
      */
     public int[] descendants1(int current){
-        return null;
+
+        int descendant_count = 0;
+
+        for(int i = 0; i < this.count; i++){
+            if(this.sets[i].getParent() == current && i != current){
+                descendant_count += 1 + descendants1(i).length;
+            }
+        }
+
+        int[] descendants = new int[descendant_count];
+
+        int pos = 0;
+
+        for(int i = 0; i < this.count; i++){
+            if(this.sets[i].getParent() == current && i != current){
+                descendants[pos] = i;
+                pos++;
+
+                int[] childDescendants = descendants1(i);
+
+                for(int j = 0; j < childDescendants.length; j++){
+                    descendants[pos] = childDescendants[j];
+                    pos++;
+                }
+            }
+        }
+
+        return descendants;
     }
 
     /**
@@ -111,7 +182,33 @@ public class DisjointSet {
      * the array list.
      */
     public int[] descendants2(int current){
-        return null;
+
+        int[] queue = new int[this.count];
+        int head = 0;
+        int tail = 1;
+        queue[0] = current;
+        int descCount = 0;
+
+        while(head < tail){
+            int curr = queue[head];
+            head++;
+
+            for(int i = 0; i < this.count; i++){
+                if(this.sets[i].getParent() == curr && i != curr){
+                    queue[tail] = i;
+                    tail++;
+                    descCount++;
+                }
+            }
+        }
+
+        int[] descendants = new int[descCount];
+
+        for(int i = 0; i < descendants.length;i++){
+            descendants[i] = queue[i + 1];
+        }
+
+        return descendants;
     }
 
     /**
@@ -119,7 +216,38 @@ public class DisjointSet {
      * that set.
      */
     public int[] getSetWithIndex(int index){
-        return null;
+
+        int tmp = index;
+        while(tmp != this.sets[tmp].getParent()){
+            tmp = this.sets[tmp].getParent();
+        }
+
+        int[] queue = new int[this.count];
+        queue[0] = tmp;
+        int head = 0;
+        int tail = 1;
+
+        while(head < tail){
+            int curr = queue[head];
+            head++;
+
+            for(int i = 0; i < this.count; i++){
+                if(this.sets[i].getParent() == curr && i != curr){
+                    queue[tail] = i;
+                    tail++;
+                }
+            }
+        }
+
+        int[] allSets = new int[tail];
+
+        for(int i = 0; i < allSets.length; i++){
+            allSets[i] = queue[i];
+        }
+
+
+
+        return allSets;
     }
 
     /**
@@ -127,7 +255,20 @@ public class DisjointSet {
      * use any class or external methods.
      */
     public LinkedList grandChildren(int index){
-        return null;
+        LinkedList grandChildren = new LinkedList();
+
+        for(int i = 0; i < this.count; i++){
+            if(this.sets[i].getParent() == index && i != index){
+                for(int j = 0; j < this.count; j++){
+                    if(this.sets[j].getParent() == i && j != i){
+                        grandChildren.insertLast(new Node(j));
+                    }
+                }
+            }
+        }
+
+
+        return grandChildren;
     }
 
     /**
@@ -135,7 +276,17 @@ public class DisjointSet {
      * ascendants are traversed, no circularity is observed (that is you do not encounter the node $n$ again).
      */
     public boolean isValid(){
-        return false;
+
+        for(int i = 0; i < this.count; i++){
+            int parent = this.sets[i].getParent();
+            while(parent != this.sets[parent].getParent()){
+                parent = this.sets[parent].getParent();
+                if(parent == i){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 
@@ -145,7 +296,44 @@ public class DisjointSet {
      * external methods.
      */
     public int numberOfTriplets(){
-        return 0;
+        int[] disjointSets = new int[count];
+        int head = 0;
+        int tail = 0;
+
+        for(int i = 0; i < this.count; i++){
+            if(this.sets[i].getParent() == i){
+                disjointSets[tail] = i;
+                tail++;
+            }
+        }
+
+        int numberOfTriples = 0;
+
+        for(int i = 0; i < tail; i++){
+            int curr = disjointSets[i];
+
+            int[] fullSet = new int[this.count];
+            int head2 = 0;
+            int tail2 = 1;
+            fullSet[0] = curr;
+
+             while(head2 < tail2){
+                 int curr2 = fullSet[head2];
+                 head2++;
+
+                 for(int j = 0; j < this.count; j++){
+                     if(this.sets[j].getParent() == curr2 && j != curr2){
+                         fullSet[tail2] = j;
+                         tail2++;
+                     }
+                 }
+             }
+
+            if(tail2 == 3){
+                numberOfTriples++;
+            }
+        }
+        return numberOfTriples;
     }
 
     /**
@@ -156,7 +344,29 @@ public class DisjointSet {
      * the size of the arrays whoBites and whoWasBitten. You are only allowed to use one external Disjoint Set.
      */
     public static int numberOfSurvivors(int count, int[] whoBites, int[] whoWasBitten){
-        return 0;
+        DisjointSet disjointSet = new DisjointSet(count);
+
+        for(int i = 0; i < whoBites.length; i++){
+            disjointSet.union(whoBites[i], whoWasBitten[i]);
+        }
+
+        boolean[] isInfected = new boolean[count];
+
+        for(int i = 0; i < whoBites.length; i++){
+            int infectedSetIndex = disjointSet.findSetIterative(whoBites[i]);
+            isInfected[infectedSetIndex] = true;
+        }
+
+        int survivors = 0;
+
+        for(int i = 0; i < disjointSet.count; i++){
+            int setIndex = disjointSet.findSetIterative(i);
+            if(!isInfected[setIndex]){
+                survivors++;
+            }
+        }
+
+        return survivors;
     }
 
     /**
@@ -165,7 +375,38 @@ public class DisjointSet {
      * Update also the depth if needed.
      */
     public void union2(int index1, int index2, int index3){
+        int x = findSetIterative(index1);
+        int y = findSetIterative(index2);
+        int z = findSetIterative(index3);
+        boolean isGreater = true;
 
+        if(this.sets[x].getDepth() > this.sets[y].getDepth()){
+            this.sets[y].setParent(x);
+        }
+        else if(this.sets[x].getDepth() == this.sets[y].getDepth()){
+            this.sets[y].setParent(x);
+            this.sets[x].incrementDepth();
+        }
+        else{
+            this.sets[x].setParent(y);
+            isGreater = false;
+        }
+
+       int union1 = x;
+       if(!isGreater){
+           union1 = y;
+       }
+
+        if(this.sets[union1].getDepth() > this.sets[z].getDepth()){
+            this.sets[z].setParent(union1);
+        }
+        else if(this.sets[union1].getDepth() == this.sets[z].getDepth()){
+            this.sets[z].setParent(union1);
+            this.sets[union1].incrementDepth();
+        }
+        else{
+            this.sets[union1].setParent(z);
+        }
     }
 
     /**
@@ -174,7 +415,24 @@ public class DisjointSet {
      * an algorithm that sorts the sets according to their depths.
      */
     public void unionOfSets(int[] indexList){
+        int[] setIndexes = new int[indexList.length];
 
+        for(int i = 0; i < indexList.length; i++){
+            setIndexes[i] = this.findSetIterative(indexList[i]);
+        }
+
+        int[] sortedSetIndexes = new int[setIndexes.length];
+
+        int pos = 0;
+
+        while(pos < setIndexes.length){
+            int max = setIndexes[0];
+            for(int i = 0; i < setIndexes.length; i++){
+                if(this.sets[setIndexes[i]].getDepth() > this.sets[setIndexes[max]].getDepth()){
+                    max = setIndexes[i];
+                }
+            }
+        }
     }
 
     /**
@@ -184,6 +442,11 @@ public class DisjointSet {
      */
     public void unmerge(int index){
 
+        for(int i = 0; i < count; i++){
+            if(this.sets[i].getParent() == index){
+                this.sets[i].setParent(i);
+            }
+        }
     }
 
     /**
@@ -192,7 +455,21 @@ public class DisjointSet {
      * except getParent.
      */
     public int value(int index){
-        return 0;
+        int max = Integer.MIN_VALUE;
+        for(int i = 0; i < this.count; i++){
+            if(this.sets[i].getParent() == index && i != index){
+                int childValue = value(i);
+                if(childValue > max){
+                    max = childValue;
+                }
+            }
+        }
+
+        if(max == Integer.MIN_VALUE){
+            return Math.max(1, index);
+        }
+
+        return 1 + max;
     }
 
     /**
@@ -200,12 +477,65 @@ public class DisjointSet {
      index. The height of an element is calculated by the number of nodes visited when we traverse the tree starting from that set and continue
      through the parent links until the top. Do not use any class or external methods.
      */
-    public int sameHeightSets(int index) { return 0; }
+    public int sameHeightSets(int index) {
+        int curr = index;
+        int parent;
+        int height = 1;
+
+        while(true){
+            parent = this.sets[curr].getParent();
+
+            if(curr == parent){
+                break;
+            }
+            height++;
+            curr = parent;
+        }
+
+        int same_height = 0;
+
+        for(int i = 0; i < this.count; i++){
+            curr = i;
+            parent = this.sets[curr].getParent();
+            int curr_height = 1;
+
+            while(curr != parent){
+                curr = parent;
+                parent = this.sets[parent].getParent();
+                curr_height++;
+            }
+
+            if(curr_height == height){
+                same_height++;
+            }
+        }
+
+        return same_height;
+    }
 
     /**
      Write the method in {\bf DisjointSet} class which returns count of sets where direct children's~(not including grandchildren) total data value is equal
      to set's parent's data value. Root node's parent is itself and a leaf node does have any children. Do not use any class or external
      methods.
      */
-    public int childrenParentEqual() { return 0; }
+    public int childrenParentEqual() {
+        int childParentEqualSetCount = 0;
+        for(int i = 0; i < this.count; i++){
+            int total = 0;
+            int parent_index = this.sets[i].getParent();
+            int parent_data = this.sets[parent_index].getData();
+
+            for(int j = 0; j < this.count; j++){
+                if(this.sets[j].getParent() == i && i != j){
+                    total += this.sets[j].getData();
+                }
+            }
+
+            if(parent_data == total){
+                childParentEqualSetCount++;
+            }
+        }
+
+        return childParentEqualSetCount;
+    }
 }

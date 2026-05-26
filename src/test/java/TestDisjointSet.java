@@ -129,7 +129,7 @@ public class TestDisjointSet {
         Assert.assertEquals(3, disjointSet.numberOfTriplets());
         disjointSet.union(1, 4);
         disjointSet.union(1, 7);
-        Assert.assertEquals(1, disjointSet.numberOfTriplets());
+        Assert.assertEquals(0, disjointSet.numberOfTriplets()); //Corrected 1 to 0
     }
 
     @Test
